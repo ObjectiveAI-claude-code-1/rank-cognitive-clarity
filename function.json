@@ -1,0 +1,63 @@
+{
+  "type": "vector.function",
+  "input_schema": {
+    "type": "array",
+    "description": "An array of code snippets to rank by cognitive clarity",
+    "minItems": 2,
+    "items": {
+      "type": "string"
+    }
+  },
+  "output_length": {
+    "$starlark": "len(input)"
+  },
+  "input_split": {
+    "$starlark": "[[snippet] for snippet in input]"
+  },
+  "input_merge": {
+    "$starlark": "[item[0] for item in input]"
+  },
+  "tasks": [
+    {
+      "type": "vector.completion",
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "I'm reviewing these code snippets and need to identify which demonstrates the strongest conceptual unity. Which one flows as a single coherent idea—where each line builds naturally on what came before, the logic remains unified throughout rather than fragmenting, and I can grasp the entire approach as one complete mental model without having to simultaneously hold multiple disconnected concepts in mind?"
+            }
+          ]
+        }
+      ],
+      "responses": {
+        "$starlark": "[[{'type': 'text', 'text': snippet}] for snippet in input]"
+      },
+      "output": {
+        "$starlark": "output[\"scores\"]"
+      }
+    },
+    {
+      "type": "vector.completion",
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "I need to understand code at a glance. Which of these code snippets best demonstrates transparency of intent—where the purpose and primary behavior are immediately apparent upon reading, the main idea is obvious without requiring external documentation, and I don't have to decode complex logic or make inferences about hidden assumptions?"
+            }
+          ]
+        }
+      ],
+      "responses": {
+        "$starlark": "[[{'type': 'text', 'text': snippet}] for snippet in input]"
+      },
+      "output": {
+        "$starlark": "output[\"scores\"]"
+      }
+    }
+  ],
+  "description": "Ranks code snippets by cognitive clarity—how easily they can be understood as a unified whole. Evaluates conceptual unity (single coherent idea without fragmentation) and transparency of intent (immediately apparent purpose). Helps developers choose clearer code for refactoring, algorithm selection, teaching, and establishing quality standards."
+}
